@@ -14,5 +14,8 @@
     "trophies"
   ],
   "author": "Tomio",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.5.1"
+  }
 }
