@@ -16,6 +16,7 @@
   "author": "Tomio",
   "license": "ISC",
   "dependencies": {
+    "brawlstars": "^1.2.3",
     "discord.js": "^11.5.1"
   }
 }
