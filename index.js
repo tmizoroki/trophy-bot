@@ -4,13 +4,12 @@ const schedule = require('node-schedule');
 const commandToHandler = require('./commandHandlerService');
 const { atMidnight } = require('./trophyPusherLeaderboardService');
 const { TROPHY_BOT_PREFIX } = require('./constants');
-const { TROPHY_BOT_TOKEN } = require('./config');
 
 const bot = new Discord.Client();
 
 bot.once('ready', onReady);
 bot.on('message', onMessage);
-bot.login(process.env.TROPHY_BOT_TOKEN || TROPHY_BOT_TOKEN);
+bot.login(process.env.TROPHY_BOT_TOKEN);
 
 function onReady() {
     schedule.scheduleJob('0 0 * * *', date => atMidnight(date, bot)) // run everyday at midnight
