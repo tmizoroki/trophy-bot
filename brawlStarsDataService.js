@@ -1,6 +1,6 @@
 const BrawlStars = require('brawlstars');
 const { BRAWL_API_TOKEN } = require('./config');
-const brawlStarsClient = new BrawlStars.Client({ token: BRAWL_API_TOKEN });
+const brawlStarsClient = new BrawlStars.Client({ token: process.env.BRAWL_API_TOKEN || BRAWL_API_TOKEN });
 
 module.exports = {
     getClubData,

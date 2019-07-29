@@ -1,7 +1,15 @@
 const firebase = require('firebase');
-const { FIREBASE_CONFIG } = require('./config');
+const { FIREBASE_API_KEY } = require('./config');
 
-firebase.initializeApp(FIREBASE_CONFIG);
+firebase.initializeApp({
+    apiKey: process.env.FIREBASE_API_KEY || FIREBASE_API_KEY,
+    authDomain: "bb-stats-f64b6.firebaseapp.com",
+    databaseURL: "https://bb-stats-f64b6.firebaseio.com",
+    projectId: "bb-stats-f64b6",
+    storageBucket: "",
+    messagingSenderId: "169567647784",
+    appId: "1:169567647784:web:324d1b83ae63aced"
+});
 const firestore = firebase.firestore();
 
 module.exports = {
