@@ -1,5 +1,8 @@
 const Discord = require('discord.js');
+const schedule = require('node-schedule');
+
 const commandToHandler = require('./commandHandlerService');
+const { atMidnight } = require('./trophyPusherLeaderboardService');
 const { TROPHY_BOT_PREFIX } = require('./constants');
 const { TROPHY_BOT_TOKEN } = require('./config');
 
@@ -9,27 +12,20 @@ bot.once('ready', onReady);
 bot.on('message', onMessage);
 bot.login(TROPHY_BOT_TOKEN);
 
-async function onMessage(msg) {
-    if (!getIsTrophyBotRequest(msg)) {
+function onReady() {
+    schedule.scheduleJob('0 0 * * *', date => atMidnight(date, bot)) // run everyday at midnight
+    console.log('TrophyBot is Ready');
+}
+
+async function onMessage(message) {
+    if (!message.content.startsWith(TROPHY_BOT_PREFIX)) {
         return;
     }
 
-    processTrophyBotInput(msg);
-}
+    const [command, ...commandArgs] = message.content.slice(TROPHY_BOT_PREFIX.length)
+                                                     .trim()
+                                                     .split(' ')
+                                                     .map(arg => arg.toLowerCase());
 
-function onReady() {
-    console.log('TrophyBot is Ready')
-}
-
-function processTrophyBotInput(msg) {
-    const [command, ...commandArgs] = msg.content.slice(TROPHY_BOT_PREFIX.length)
-                                                 .trim()
-                                                 .split(' ')
-                                                 .map(arg => arg.toLowerCase());
-
-    commandToHandler[command](msg, commandArgs);
-}
-
-function getIsTrophyBotRequest(msg) {
-    return msg.content.startsWith(TROPHY_BOT_PREFIX);
+    commandToHandler[command](message, commandArgs);
 }

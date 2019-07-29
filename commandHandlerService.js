@@ -3,8 +3,6 @@ const brawlStarsDataService = require('./brawlStarsDataService');
 
 module.exports = {
     list,
-    // leaderboard,
-    // compare,
 };
 
 async function list(msg, [clubId]) {
