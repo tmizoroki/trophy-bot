@@ -8,10 +8,10 @@ module.exports = {
 async function list(msg, [clubId]) {
     const clubData = await brawlStarsDataService.getClubData();
     const tagToMemberData = brawlStarsDataService.getTagToMemberData(clubData);
-    msg.channel.send({ embed: getListEmbed(tagToMemberData) });
+    msg.channel.send({ embed: getListEmbed(tagToMemberData, clubData) });
 }
 
-function getListEmbed(tagToMemberData, num = 5) {
+function getListEmbed(tagToMemberData, clubData, num = 5) {
     return {
         title: `Top ${num} ${clubData.name} members`,
         description: `The top ${num} members of ${clubData.name} by current trophy count.`,
