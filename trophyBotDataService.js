@@ -51,7 +51,8 @@ async function readClubTrophyData(docRefId) {
 }
 
 function getYesterdaysDocRefId(date) {
-    date.setDate(date.getDate() - 1);
+    const copiedDate = new Date(date.getTime());
+    copiedDate.setDate(copiedDate.getDate() - 1);
 
-    return getFormattedDate(date);
+    return getFormattedDate(copiedDate);
 }
