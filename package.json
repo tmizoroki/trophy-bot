@@ -19,6 +19,7 @@
     "brawlstars": "^1.2.3",
     "discord.js": "^11.5.1",
     "firebase": "^6.3.3",
+    "firebase-admin": "^8.3.0",
     "node-schedule": "^1.3.2"
   }
 }
