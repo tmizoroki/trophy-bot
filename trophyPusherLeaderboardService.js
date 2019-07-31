@@ -3,10 +3,10 @@ const { getSortedTrophyPushers } = require('./trophyUtils');
 const { saveClubTrophyData, readYesterdaysClubTrophyData } = require('./trophyBotDataService');
 
 module.exports = {
-    atMidnight
+    atDailyDealsReset
 };
 
-async function atMidnight(date, bot) {
+async function atDailyDealsReset(date, bot) {
     const newClubData = await getClubData();
     const newTagToMemberData = getTagToMemberData(newClubData);
 
