@@ -21,6 +21,13 @@ const firestore = admin.firestore();
 module.exports = {
     saveClubTrophyData,
     readYesterdaysClubTrophyData,
+    updateUsernameToTag,
+}
+
+function updateUsernameToTag(username, tag) {
+    return firestore.collection("trophyBotConfigs").doc("usernameToTag").update({
+        [username]: tag
+    });
 }
 
 async function saveClubTrophyData(tagToMemberData, now) {
