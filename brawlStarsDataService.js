@@ -3,8 +3,13 @@ const brawlStarsClient = new BrawlStars.Client({ token: process.env.BRAWL_API_TO
 
 module.exports = {
     getClubData,
+    getMemberData,
     getTagToMemberData,
 };
+
+function getMemberData(memberTag) {
+    return brawlStarsClient.getPlayer(`#${memberTag.toUpperCase()}`);
+}
 
 function getClubData(clubId = 'vlyl2q') {
     return brawlStarsClient.getClub(`#${clubId.toUpperCase()}`);

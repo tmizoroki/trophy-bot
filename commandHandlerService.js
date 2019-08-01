@@ -1,11 +1,44 @@
 
 const brawlStarsDataService = require('./brawlStarsDataService');
-const { updateUsernameToTag } = require('./trophyBotDataService');
+const { updateUsernameToTag, readTodaysClubTrophyData, getMessageAuthorsTag } = require('./trophyBotDataService');
+const { getSortedTrophyPushers } = require('./trophyUtils');
+const { TROPHY_BOT_PREFIX } = require('./constants');
 
 module.exports = {
     list,
     link,
+    rank,
 };
+
+async function rank(message, [tag]) {
+    tag = tag || getMessageAuthorsTag(message);
+    if (!tag) {
+        message.reply(`You have not yet linked your Brawl Stars tag. Please use the command: ${TROPHY_BOT_PREFIX} link <YOUR_BRAWL_STARS_TAG>`)
+    }
+    const newClubData = await brawlStarsDataService.getClubData();
+    const newTagToMemberData = brawlStarsDataService.getTagToMemberData(newClubData);
+    const todaysTagToMemberData = await readTodaysClubTrophyData(new Date());
+
+    const sortedTrophyPushers = getSortedTrophyPushers(newTagToMemberData, todaysTagToMemberData);
+
+    const index = sortedTrophyPushers.findIndex(pusher => pusher.tag.toUpperCase() === tag.toUpperCase());
+    const rank = index + 1;
+    const delta = sortedTrophyPushers[index].trophyDelta;
+    message.reply(`You are currently in ${rank}${getNumSuffix(rank)} place and have pushed ${delta} trophies`);
+}
+
+function getNumSuffix(rank) {
+    switch(rank) {
+        case 1:
+            return `st`;
+        case 2:
+            return 'nd';
+        case 3:
+            return 'rd';
+        default:
+            return 'th';
+    }
+}
 
 async function link(message, [tag]) {
     if (!tag) {

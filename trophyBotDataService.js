@@ -21,7 +21,9 @@ const firestore = admin.firestore();
 module.exports = {
     saveClubTrophyData,
     readYesterdaysClubTrophyData,
+    readTodaysClubTrophyData,
     updateUsernameToTag,
+    getMessageAuthorsTag,
 }
 
 function updateUsernameToTag(username, tag) {
@@ -47,6 +49,12 @@ async function readYesterdaysClubTrophyData(date) {
     return tagToMemberData;
 }
 
+async function readTodaysClubTrophyData(date) {
+    const todaysDocRefId = getFormattedDate(date);
+    const { tagToMemberData} = await readClubTrophyData(todaysDocRefId);
+    return tagToMemberData;
+}
+
 function getFormattedDate(now) {
     return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
 }
@@ -69,4 +77,13 @@ function getYesterdaysDocRefId(date) {
     copiedDate.setDate(copiedDate.getDate() - 1);
 
     return getFormattedDate(copiedDate);
+}
+
+async function getMessageAuthorsTag(message) {
+    const document = await firestore.collection('trophyBotConfigs')
+                                    .doc('usernameToTag')
+                                    .get()
+                                    .catch(error => console.error('Error getting usernameToTag document', error));
+    const userNameToTag = document.data();
+    return userNameToTag[message.author.username];
 }
