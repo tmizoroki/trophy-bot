@@ -22,7 +22,7 @@ async function atDailyDealsReset(date, bot) {
 
 function getLeaderboardEmbed(sortedTrophyPushers, now, num = 5) {
     return {
-        title: `Top ${num} Trophy Pushers`,
+        title: `Top ${num} Trophy Pushers of the Last 24 Hours`,
         description: `The top ${num} trophy pushers for ${now.toDateString()}`,
         fields: getLeaderboardFields(sortedTrophyPushers, num),
         timestamp: now,
