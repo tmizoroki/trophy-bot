@@ -10,10 +10,10 @@ module.exports = {
     rank,
 };
 
-async function rank(message, [tag]) {
-    tag = tag || getMessageAuthorsTag(message);
+async function rank(message, [tagArg]) {
+    const tag = tagArg || await getMessageAuthorsTag(message);
     if (!tag) {
-        message.reply(`You have not yet linked your Brawl Stars tag. Please use the command: ${TROPHY_BOT_PREFIX} link <YOUR_BRAWL_STARS_TAG>`)
+        message.reply(`You have not yet linked your Brawl Stars tag. Please use the command: ${TROPHY_BOT_PREFIX} link <YOUR_BRAWL_STARS_TAG> (without the # in front)`)
     }
     const newClubData = await brawlStarsDataService.getClubData();
     const newTagToMemberData = brawlStarsDataService.getTagToMemberData(newClubData);
@@ -21,7 +21,10 @@ async function rank(message, [tag]) {
 
     const sortedTrophyPushers = getSortedTrophyPushers(newTagToMemberData, todaysTagToMemberData);
 
-    const index = sortedTrophyPushers.findIndex(pusher => pusher.tag.toUpperCase() === tag.toUpperCase());
+    const index = sortedTrophyPushers.findIndex(pusher => pusher.tag === tag.toUpperCase());
+    if (index === -1) {
+        message.reply(`The provided tag: ${tag}, does not match any member tag in this club. If you provided the tag as an argument, check that the tag is correct. Otherwise, try relinking your tag.`);
+    }
     const rank = index + 1;
     const delta = sortedTrophyPushers[index].trophyDelta;
     message.reply(`You are currently in ${rank}${getNumSuffix(rank)} place and have pushed ${delta} trophies`);
@@ -47,7 +50,7 @@ async function link(message, [tag]) {
     }
     await updateUsernameToTag(message.author.username, tag)
         .catch(error => {
-            console.error(`Error linking username: ${username} to tag: ${tag}`, error);
+            console.error(`Error linking username: ${message.author.username} to tag: ${tag}`, error);
             message.reply('There was a problem creating the link.')
         });
 

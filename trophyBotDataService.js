@@ -11,79 +11,93 @@ admin.initializeApp({
     auth_uri: process.env.FIREBASE_AUTH_URI,
     token_uri: process.env.FIREBASE_TOKEN_URI,
     auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
-    client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL
-  })
+    client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+  }),
 });
 
 const firestore = admin.firestore();
 
-
-module.exports = {
-    saveClubTrophyData,
-    readYesterdaysClubTrophyData,
-    readTodaysClubTrophyData,
-    updateUsernameToTag,
-    getMessageAuthorsTag,
-}
-
 function updateUsernameToTag(username, tag) {
-    return firestore.collection("trophyBotConfigs").doc("usernameToTag").update({
-        [username]: tag
-    });
-}
-
-async function saveClubTrophyData(tagToMemberData, now) {
-    const docRefId = getFormattedDate(now);
-    await firestore.collection('memberTrophyData').doc(docRefId).set({
-      timestamp: now,
-      tagToMemberData,
-    })
-    .catch(error => { console.error("Error adding document: ", error); });
-  
-    console.log("Document written with ID: ", docRefId);
-}
-
-async function readYesterdaysClubTrophyData(date) {
-    const yesterdaysDocRefId = getYesterdaysDocRefId(date);
-    const { tagToMemberData } = await readClubTrophyData(yesterdaysDocRefId);
-    return tagToMemberData;
-}
-
-async function readTodaysClubTrophyData(date) {
-    const todaysDocRefId = getFormattedDate(date);
-    const { tagToMemberData} = await readClubTrophyData(todaysDocRefId);
-    return tagToMemberData;
+  return firestore.collection('trophyBotConfigs').doc('usernameToTag').update({
+    [username]: tag,
+  });
 }
 
 function getFormattedDate(now) {
-    return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+  return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
 }
 
-async function readClubTrophyData(docRefId) {
-    const document = await firestore.collection('memberTrophyData')
-                                    .doc(docRefId)
-                                    .get()
-                                    .catch(error => console.log('Error getting document', error));
+async function saveClubTrophyData(tagToMemberData, now) {
+  const docRefId = getFormattedDate(now);
+  await firestore.collection('memberTrophyData').doc(docRefId).set({
+    timestamp: now,
+    tagToMemberData,
+  })
+    .catch((error) => { console.error('Error adding document: ', error); });
 
-    if (!document.exists) {
-        console.log('No such document');
-    }
-
-    return document.data();
+  console.log('Document written with ID: ', docRefId);
 }
 
 function getYesterdaysDocRefId(date) {
-    const copiedDate = new Date(date.getTime());
-    copiedDate.setDate(copiedDate.getDate() - 1);
+  const copiedDate = new Date(date.getTime());
+  copiedDate.setDate(copiedDate.getDate() - 1);
 
-    return getFormattedDate(copiedDate);
+  return getFormattedDate(copiedDate);
+}
+
+function getLastWeeksDocRefId(date) {
+  const copiedDate = new Date(date.getTime());
+  copiedDate.setDate(copiedDate.getDate() - 7);
+
+  return getFormattedDate(copiedDate);
+}
+
+async function readClubTrophyData(docRefId) {
+  const document = await firestore.collection('memberTrophyData')
+    .doc(docRefId)
+    .get()
+    .catch((error) => console.log('Error getting document', error));
+
+  if (!document.exists) {
+    console.log('No such document');
+  }
+
+  return document.data();
+}
+
+async function readYesterdaysClubTrophyData(date) {
+  const yesterdaysDocRefId = getYesterdaysDocRefId(date);
+  const { tagToMemberData } = await readClubTrophyData(yesterdaysDocRefId);
+  return tagToMemberData;
+}
+
+async function readLastWeeksClubTrophyData(date) {
+  const lastWeeksDocRefId = getLastWeeksDocRefId(date);
+  const { tagToMemberData } = await readClubTrophyData(lastWeeksDocRefId);
+  return tagToMemberData;
+}
+
+async function readTodaysClubTrophyData(date) {
+  const todaysDocRefId = getFormattedDate(date);
+  const { tagToMemberData } = await readClubTrophyData(todaysDocRefId);
+  return tagToMemberData;
 }
 
 async function getMessageAuthorsTag(message) {
-    const document = await firestore.collection('trophyBotConfigs')
-                                    .doc('usernameToTag')
-                                    .get()
-                                    .catch(error => console.error('Error getting usernameToTag document', error));
-    const userNameToTag = document.data();
-    return userNameToTag[message.author.username];
+  const document = await firestore.collection('trophyBotConfigs')
+    .doc('usernameToTag')
+    .get()
+    .catch((error) => console.error('Error getting usernameToTag document', error));
+
+  const userNameToTag = document.data();
+  return userNameToTag[message.author.username];
 }
+
+module.exports = {
+  saveClubTrophyData,
+  readYesterdaysClubTrophyData,
+  readLastWeeksClubTrophyData,
+  readTodaysClubTrophyData,
+  updateUsernameToTag,
+  getMessageAuthorsTag,
+};
