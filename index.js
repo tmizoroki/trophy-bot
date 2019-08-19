@@ -9,7 +9,7 @@ const bot = new Discord.Client();
 
 function onReady() {
   schedule.scheduleJob('0 1 * * *', (date) => atDailyDealsReset(date, bot)); // run everyday at midnight
-  schedule.scheduleJob('0 1 * * 0', (date) => atStartOfWeek(date, bot));
+  schedule.scheduleJob('0 1 * * 1', (date) => atStartOfWeek(date, bot));
   console.log('TrophyBot is Ready');
 }
 
