@@ -18,9 +18,17 @@ admin.initializeApp({
 const firestore = admin.firestore();
 
 function updateUsernameToTag(username, tag) {
+  const validTag = getValidTag(tag);
   return firestore.collection('trophyBotConfigs').doc('usernameToTag').update({
-    [username]: tag,
+    [username]: validTag,
   });
+}
+
+function getValidTag(tag) {
+  if (tag.charAt(0) === '#') {
+    tag = tag.slice(1);
+  }
+  return tag.toUpperCase();
 }
 
 function getFormattedDate(now) {
@@ -100,4 +108,5 @@ module.exports = {
   readTodaysClubTrophyData,
   updateUsernameToTag,
   getMessageAuthorsTag,
+  getValidTag,
 };
