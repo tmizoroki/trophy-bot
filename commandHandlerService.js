@@ -28,7 +28,7 @@ async function rank(message, [tagArg]) {
     }
     const rank = index + 1;
     const delta = sortedTrophyPushers[index].trophyDelta;
-    message.reply(`You are currently in ${rank}${getNumSuffix(rank)} place and have pushed ${delta} trophies`);
+    message.reply(`You have pushed ${delta} trophies today (${rank}${getNumSuffix(rank)} place)`);
 }
 
 function getNumSuffix(rank) {
