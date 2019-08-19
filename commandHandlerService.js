@@ -49,14 +49,15 @@ async function link(message, [tag]) {
         message.reply('Please provide your Brawl Stars player tag as an additional argument. E.g. "!trophy link <TAG>"');
         return;
     }
-    await updateUsernameToTag(message.author.username, tag)
+    const validTag = getValidTag(tag);
+    await updateUsernameToTag(message.author.username, validTag)
         .catch(error => {
-            console.error(`Error linking username: ${message.author.username} to tag: ${tag}`, error);
+            console.error(`Error linking username: ${message.author.username} to tag: ${validTag}`, error);
             message.reply('There was a problem creating the link.')
         });
 
-    console.log(`usernameToTag updated with ${message.author.username} linked to ${tag}`);
-    message.reply(`Successfully created link to Tag: ${tag}`);
+    console.log(`usernameToTag updated with ${message.author.username} linked to ${validTag}`);
+    message.reply(`Successfully created link to Tag: ${validTag}`);
 }
 
 async function list(msg, [clubId]) {

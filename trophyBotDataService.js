@@ -18,9 +18,8 @@ admin.initializeApp({
 const firestore = admin.firestore();
 
 function updateUsernameToTag(username, tag) {
-  const validTag = getValidTag(tag);
   return firestore.collection('trophyBotConfigs').doc('usernameToTag').update({
-    [username]: validTag,
+    [username]: tag,
   });
 }
 
