@@ -14,7 +14,7 @@ function onReady() {
 }
 
 async function onMessage(message) {
-  if (!message.content.startsWith(TROPHY_BOT_PREFIX)) {
+  if (!message.content.startsWith(TROPHY_BOT_PREFIX) || message.author.id === bot.user.id) {
     return;
   }
 
