@@ -1,6 +1,6 @@
 
 const brawlStarsDataService = require('./brawlStarsDataService');
-const { updateUsernameToTag, readTodaysClubTrophyData, getMessageAuthorsTag } = require('./trophyBotDataService');
+const { updateUsernameToTag, readTodaysClubTrophyData, getMessageAuthorsTag, getValidTag } = require('./trophyBotDataService');
 const { getSortedTrophyPushers } = require('./trophyUtils');
 const { TROPHY_BOT_PREFIX } = require('./constants');
 
@@ -11,7 +11,8 @@ module.exports = {
 };
 
 async function rank(message, [tagArg]) {
-    const tag = tagArg || await getMessageAuthorsTag(message);
+    const isTagArgSupplied = !!tagArg;
+    const tag = isTagArgSupplied ? getValidTag(tagArg) : await getMessageAuthorsTag(message);
     if (!tag) {
         message.reply(`You have not yet linked your Brawl Stars tag. Please use the command: ${TROPHY_BOT_PREFIX} link <YOUR_BRAWL_STARS_TAG> (without the # in front)`)
     }
@@ -21,7 +22,7 @@ async function rank(message, [tagArg]) {
 
     const sortedTrophyPushers = getSortedTrophyPushers(newTagToMemberData, todaysTagToMemberData);
 
-    const index = sortedTrophyPushers.findIndex(pusher => pusher.tag === tag.toUpperCase());
+    const index = sortedTrophyPushers.findIndex(pusher => pusher.tag === tag);
     if (index === -1) {
         message.reply(`The provided tag: ${tag}, does not match any member tag in this club. If you provided the tag as an argument, check that the tag is correct. Otherwise, try relinking your tag.`);
     }
