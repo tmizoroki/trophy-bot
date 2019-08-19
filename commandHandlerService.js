@@ -1,6 +1,6 @@
 
 const brawlStarsDataService = require('./brawlStarsDataService');
-const { updateUsernameToTag, readTodaysClubTrophyData, getMessageAuthorsTag, getValidTag } = require('./trophyBotDataService');
+const { updateUsernameToTag, readTodaysClubTrophyData, readYesterdaysClubTrophyData, getMessageAuthorsTag, getValidTag } = require('./trophyBotDataService');
 const { getSortedTrophyPushers } = require('./trophyUtils');
 const { TROPHY_BOT_PREFIX } = require('./constants');
 
@@ -18,7 +18,13 @@ async function rank(message, [tagArg]) {
     }
     const newClubData = await brawlStarsDataService.getClubData();
     const newTagToMemberData = brawlStarsDataService.getTagToMemberData(newClubData);
-    const todaysTagToMemberData = await readTodaysClubTrophyData(new Date());
+    let todaysTagToMemberData;
+    try {
+        todaysTagToMemberData = await readTodaysClubTrophyData(new Date());
+    }
+    catch(error) {
+        todaysTagToMemberData = await readYesterdaysClubTrophyData(new Date());
+    }
 
     const sortedTrophyPushers = getSortedTrophyPushers(newTagToMemberData, todaysTagToMemberData);
 
@@ -60,12 +66,18 @@ async function link(message, [tag]) {
     message.reply(`Successfully created link to Tag: ${validTag}`);
 }
 
-async function list(msg, [clubId]) {
+async function list(msg) {
     const clubData = await brawlStarsDataService.getClubData();
 
     const newClubData = await brawlStarsDataService.getClubData();
     const newTagToMemberData = brawlStarsDataService.getTagToMemberData(newClubData);
-    const todaysTagToMemberData = await readTodaysClubTrophyData(new Date());
+    let todaysTagToMemberData;
+    try {
+        todaysTagToMemberData = await readTodaysClubTrophyData(new Date());
+    }
+    catch(error) {
+        todaysTagToMemberData = await readYesterdaysClubTrophyData(new Date());
+    }
 
     const sortedTrophyPushers = getSortedTrophyPushers(newTagToMemberData, todaysTagToMemberData);
 
