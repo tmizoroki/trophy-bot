@@ -100,6 +100,16 @@ async function getMessageAuthorsTag(message) {
   return userNameToTag[message.author.username];
 }
 
+async function getConfig(key) {
+  const document = await firestore.collection('trophyBotConfigs')
+    .doc('config')
+    .get()
+    .catch(error => console.error('Error getting config document', error));
+
+    const config = document.data();
+    return key ? config[key] : config;
+}
+
 module.exports = {
   saveClubTrophyData,
   readYesterdaysClubTrophyData,
@@ -108,4 +118,5 @@ module.exports = {
   updateUsernameToTag,
   getMessageAuthorsTag,
   getValidTag,
+  getConfig,
 };

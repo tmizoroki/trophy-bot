@@ -1,6 +1,6 @@
 const { getClubData, getTagToMemberData } = require('./brawlStarsDataService');
 const { getSortedTrophyPushers } = require('./trophyUtils');
-const { saveClubTrophyData, readYesterdaysClubTrophyData, readLastWeeksClubTrophyData } = require('./trophyBotDataService');
+const { saveClubTrophyData, readYesterdaysClubTrophyData, readLastWeeksClubTrophyData, getConfig } = require('./trophyBotDataService');
 
 module.exports = {
   atDailyDealsReset,
