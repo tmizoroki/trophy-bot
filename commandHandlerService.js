@@ -1,6 +1,6 @@
 
 const brawlStarsDataService = require('./brawlStarsDataService');
-const { updateUsernameToTag, readTodaysClubTrophyData, readYesterdaysClubTrophyData, getMessageAuthorsTag, getValidTag } = require('./trophyBotDataService');
+const { updateUsernameToTag, readTodaysClubTrophyData, readYesterdaysClubTrophyData, getMessageAuthorsTag, getValidTag, getConfig } = require('./trophyBotDataService');
 const { getSortedTrophyPushers } = require('./trophyUtils');
 const { TROPHY_BOT_PREFIX } = require('./constants');
 
@@ -8,6 +8,7 @@ module.exports = {
     list,
     link,
     rank,
+    config,
     help,
 };
 
@@ -103,6 +104,16 @@ function getListEmbed(sortedTrophyPushers, clubData, num = 5) {
             name: `${index + 1}. ${member.name}`,
             value: `${member.trophyDelta} 🏆`,
         };
+    }
+}
+
+async function config(message, [configKey, configValue]) {
+    if (!configValue) {
+        const currentConfigValue = await getConfig(configKey);
+        message.reply(`${configKey}: ${currentConfigValue}`);
+    }
+    else {
+        console.log(`Setting ${configKey} to ${configValue}`);
     }
 }
 
