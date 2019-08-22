@@ -110,6 +110,12 @@ async function getConfig(key) {
     return key ? config[key] : config;
 }
 
+async function setConfig(key, value) {
+  return firestore.collection('trophyBotConfigs')
+    .doc('config')
+    .update({ [key]: value });
+}
+
 module.exports = {
   saveClubTrophyData,
   readYesterdaysClubTrophyData,
@@ -119,4 +125,5 @@ module.exports = {
   getMessageAuthorsTag,
   getValidTag,
   getConfig,
+  setConfig,
 };

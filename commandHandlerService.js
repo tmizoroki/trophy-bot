@@ -1,6 +1,14 @@
 
 const brawlStarsDataService = require('./brawlStarsDataService');
-const { updateUsernameToTag, readTodaysClubTrophyData, readYesterdaysClubTrophyData, getMessageAuthorsTag, getValidTag, getConfig } = require('./trophyBotDataService');
+const {
+    updateUsernameToTag,
+    readTodaysClubTrophyData,
+    readYesterdaysClubTrophyData,
+    getMessageAuthorsTag,
+    getValidTag,
+    getConfig,
+    setConfig,
+} = require('./trophyBotDataService');
 const { getSortedTrophyPushers } = require('./trophyUtils');
 const { TROPHY_BOT_PREFIX } = require('./constants');
 
@@ -108,12 +116,19 @@ function getListEmbed(sortedTrophyPushers, clubData, num = 5) {
 }
 
 async function config(message, [configKey, configValue]) {
+    const admins = await getConfig('admins');
+    const isAdmin = admins.includes(message.author.username);
+    if (!isAdmin) {
+        message.reply('You\'re not my mom! I don\'t have to listen to you!');
+        return;
+    }
     if (!configValue) {
         const currentConfigValue = await getConfig(configKey);
         message.reply(`${configKey}: ${currentConfigValue}`);
     }
     else {
-        console.log(`Setting ${configKey} to ${configValue}`);
+        await setConfig(configKey, configValue);
+        message.reply(`Set ${configKey} to ${configValue}`);
     }
 }
 
