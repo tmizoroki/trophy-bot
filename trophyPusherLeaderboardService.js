@@ -59,7 +59,7 @@ function getLeaderboardEmbed(sortedTrophyPushers, date, num = 5) {
   };
 }
 
-function postLeaderboardToChannel(leaderboardEmbed, bot, channelName = 'general') {
+function postLeaderboardToChannel(leaderboardEmbed, bot, channelName = 'trophy-reports') {
   const channel = bot.channels.find('name', channelName);
   channel.send({ embed: leaderboardEmbed });
 }
