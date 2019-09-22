@@ -30,8 +30,8 @@ function getValidTag(tag) {
   return tag.toUpperCase();
 }
 
-function getFormattedDate(now) {
-  return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+function getFormattedDate(date) {
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
 async function saveClubTrophyData(tagToMemberData, now) {
@@ -45,21 +45,15 @@ async function saveClubTrophyData(tagToMemberData, now) {
   console.log('Document written with ID: ', docRefId);
 }
 
-function getYesterdaysDocRefId(date) {
+function getDocRefId(date, daysAgo = 0) {
   const copiedDate = new Date(date.getTime());
-  copiedDate.setDate(copiedDate.getDate() - 1);
+  copiedDate.setDate(copiedDate.getDate() - daysAgo);
 
   return getFormattedDate(copiedDate);
 }
 
-function getLastWeeksDocRefId(date) {
-  const copiedDate = new Date(date.getTime());
-  copiedDate.setDate(copiedDate.getDate() - 7);
-
-  return getFormattedDate(copiedDate);
-}
-
-async function readClubTrophyData(docRefId) {
+async function readClubTrophyData(date, daysAgo = 0) {
+  const docRefId = getDocRefId(date, daysAgo);
   const document = await firestore.collection('memberTrophyData')
     .doc(docRefId)
     .get()
@@ -69,25 +63,7 @@ async function readClubTrophyData(docRefId) {
     console.log('No such document');
   }
 
-  return document.data();
-}
-
-async function readYesterdaysClubTrophyData(date) {
-  const yesterdaysDocRefId = getYesterdaysDocRefId(date);
-  const { tagToMemberData } = await readClubTrophyData(yesterdaysDocRefId);
-  return tagToMemberData;
-}
-
-async function readLastWeeksClubTrophyData(date) {
-  const lastWeeksDocRefId = getLastWeeksDocRefId(date);
-  const { tagToMemberData } = await readClubTrophyData(lastWeeksDocRefId);
-  return tagToMemberData;
-}
-
-async function readTodaysClubTrophyData(date) {
-  const todaysDocRefId = getFormattedDate(date);
-  const { tagToMemberData } = await readClubTrophyData(todaysDocRefId);
-  return tagToMemberData;
+  return document.data().tagToMemberData;
 }
 
 async function getMessageAuthorsTag(message) {
@@ -118,9 +94,7 @@ async function setConfig(key, value) {
 
 module.exports = {
   saveClubTrophyData,
-  readYesterdaysClubTrophyData,
-  readLastWeeksClubTrophyData,
-  readTodaysClubTrophyData,
+  readClubTrophyData,
   updateUsernameToTag,
   getMessageAuthorsTag,
   getValidTag,
