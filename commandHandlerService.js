@@ -2,8 +2,7 @@
 const brawlStarsDataService = require('./brawlStarsDataService');
 const {
     updateUsernameToTag,
-    readTodaysClubTrophyData,
-    readYesterdaysClubTrophyData,
+    readClubTrophyData,
     getMessageAuthorsTag,
     getValidTag,
     getConfig,
@@ -30,13 +29,13 @@ async function rank(message, [tagArg]) {
     const newTagToMemberData = brawlStarsDataService.getTagToMemberData(newClubData);
     let todaysTagToMemberData;
     try {
-        todaysTagToMemberData = await readTodaysClubTrophyData(new Date());
+        todaysTagToMemberData = await readClubTrophyData(new Date());
     }
     catch(error) {
-        todaysTagToMemberData = await readYesterdaysClubTrophyData(new Date());
+        todaysTagToMemberData = await readClubTrophyData(new Date(), 1);
     }
 
-    const sortedTrophyPushers = getSortedTrophyPushers(newTagToMemberData, todaysTagToMemberData);
+    const sortedTrophyPushers = getSortedTrophyPushers(newTagToMemberData, todaysTagToMemberData, 'DESC');
 
     const index = sortedTrophyPushers.findIndex(pusher => pusher.tag === tag);
     if (index === -1) {
@@ -76,34 +75,73 @@ async function link(message, [tag]) {
     message.reply(`Successfully created link to Tag: ${validTag}`);
 }
 
-async function list(msg) {
+async function list(message, args) {
+
+    const listOptions = getOptionsFromArgs(args);
+
     const clubData = await brawlStarsDataService.getClubData();
 
     const newClubData = await brawlStarsDataService.getClubData();
     const newTagToMemberData = brawlStarsDataService.getTagToMemberData(newClubData);
-    let todaysTagToMemberData;
+    let oldTagToMemberData;
     try {
-        todaysTagToMemberData = await readTodaysClubTrophyData(new Date());
+        oldTagToMemberData = await readClubTrophyData(new Date(), listOptions.days);
     }
     catch(error) {
-        todaysTagToMemberData = await readYesterdaysClubTrophyData(new Date());
+        oldTagToMemberData = await readClubTrophyData(new Date(), listOptions.days + 1);
     }
 
-    const sortedTrophyPushers = getSortedTrophyPushers(newTagToMemberData, todaysTagToMemberData);
+    const sortedTrophyPushers = getSortedTrophyPushers(newTagToMemberData, oldTagToMemberData, listOptions.sortDirection);
 
-    msg.channel.send({ embed: getListEmbed(sortedTrophyPushers, clubData) });
+    message.channel.send({ embed: getListEmbed(sortedTrophyPushers, clubData.name, listOptions) });
 }
 
-function getListEmbed(sortedTrophyPushers, clubData, num = 5) {
+function getOptionsFromArgs(args) {
+    const defaultOptions = {
+        limit: 5,
+        days: 0,
+        sortDirection: 'DESC',
+    }
+
+    if (!args.length) {
+        return defaultOptions;
+    }
+
+    const sortDirectionIndex = args.findIndex(arg => arg === '--asc' || arg === '--desc');
+    const daysIndex = args.findIndex(arg => arg === '--days');
+    const limitIndex = args.findIndex(arg => arg === '--limit');
+
+    const options = {
+        ...limitIndex != -1 ? { limit: +args[limitIndex + 1] } : {},
+        ...daysIndex != -1 ? { days: +args[daysIndex + 1] } : {},
+        ...sortDirectionIndex != -1 ? { sortDirection: getSortDirection(args[sortDirectionIndex]) } : {},
+    }
+
+    return Object.assign({}, defaultOptions, options);
+}
+
+function getSortDirection(arg) {
+    return arg.slice(2).toUpperCase();
+}
+
+function getListEmbed(sortedTrophyPushers, clubName, { limit, direction, days }) {
+    const timespanText = getTimespanText(days);
     return {
-        title: `Current Top ${num} Trophy Pushers`,
-        description: `The top ${num} trophy pushers of ${clubData.name} for the current 24 hour period.`,
+        title: `${direction === '--desc' ? 'Top' : 'Bottom'} ${limit} Trophy Pushers`,
+        description: `The ${direction === '--desc' ? 'top' : 'bottom'} ${limit} trophy pushers of ${clubName} over the ${timespanText}.`,
         fields: getListFields(sortedTrophyPushers),
         timestamp: new Date(),
     };
 
+    function getTimespanText(days) {
+        if (days === 0) {
+            return 'current 24 hour period'
+        }
+        return `past ${days} days`
+    }
+
     function getListFields(sortedTrophyPushers) {
-        return Object.values(sortedTrophyPushers).slice(0, num)
+        return Object.values(sortedTrophyPushers).slice(0, limit)
                                                  .map(toListField);
     }
 

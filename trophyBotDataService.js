@@ -63,7 +63,8 @@ async function readClubTrophyData(date, daysAgo = 0) {
     console.log('No such document');
   }
 
-  return document.data().tagToMemberData;
+  const data = await document.data();
+  return data.tagToMemberData;
 }
 
 async function getMessageAuthorsTag(message) {

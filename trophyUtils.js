@@ -5,6 +5,7 @@ module.exports = {
 function getSortedTrophyPushers(newTagToMemberData, oldTagToMemberData, direction = 'DESC') {
     const tags = Object.keys(newTagToMemberData);
     return tags.map(toTrophyPusher)
+               .filter(trophyPusher => trophyPusher.trophyDelta !== null)
                .sort(getComparator(direction));
 
     function toTrophyPusher(tag) {
