@@ -41,7 +41,7 @@ async function rank(message, [tagArg]) {
     if (index === -1) {
         message.reply(`The provided tag: ${tag}, does not match any member tag in this club. If you provided the tag as an argument, check that the tag is correct. Otherwise, try relinking your tag.`);
     }
-    const rank = index + 1;
+    const rank = sortedTrophyPushers[index].rank;
     const delta = sortedTrophyPushers[index].trophyDelta;
     message.reply(`You have pushed ${delta} trophies today (${rank}${getNumSuffix(rank)} place)`);
 }
@@ -145,9 +145,9 @@ function getListEmbed(sortedTrophyPushers, clubName, { limit, direction, days })
                                                  .map(toListField);
     }
 
-    function toListField(member, index) {
+    function toListField(member) {
         return {
-            name: `${index + 1}. ${member.name}`,
+            name: `${member.rank}. ${member.name}`,
             value: `${member.trophyDelta} 🏆`,
         };
     }

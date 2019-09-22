@@ -4,9 +4,20 @@ module.exports = {
 
 function getSortedTrophyPushers(newTagToMemberData, oldTagToMemberData, direction = 'DESC') {
     const tags = Object.keys(newTagToMemberData);
-    return tags.map(toTrophyPusher)
-               .filter(trophyPusher => trophyPusher.trophyDelta !== null)
-               .sort(getComparator(direction));
+    const rankedPushers = tags.map(toTrophyPusher)
+        .filter(trophyPusher => trophyPusher.trophyDelta !== null)
+        .sort(getComparator('DESC'))
+        .reduce((rankedPushers, pusher, index) => {
+            const previousPusher = rankedPushers[index - 1];
+            rankedPushers.push({
+                ...pusher,
+                rank: previousPusher == null || pusher.trophyDelta !== previousPusher.trophyDelta
+                    ? index + 1 : previousPusher.rank
+            });
+            return rankedPushers;
+        }, [])
+
+    return direction === 'DESC' ? rankedPushers : rankedPushers.sort(getComparator('ASC'));
 
     function toTrophyPusher(tag) {
         return {

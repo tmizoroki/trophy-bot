@@ -43,9 +43,9 @@ function getLeaderboardFields(sortedTrophyPushers, num) {
     .map(toLeaderboardField);
 }
 
-function toLeaderboardField(member, index) {
+function toLeaderboardField(member) {
   return {
-    name: `${index + 1}. ${member.name}`,
+    name: `${member.rank}. ${member.name}`,
     value: `Pushed ${member.trophyDelta} trophies`,
   };
 }
