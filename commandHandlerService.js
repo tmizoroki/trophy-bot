@@ -27,7 +27,7 @@ async function rank(message, [tagArg]) {
         message.reply(`You have not yet linked your Brawl Stars tag. Please use the command: ${TROPHY_BOT_PREFIX} link <YOUR_BRAWL_STARS_TAG> (without the # in front)`)
     }
 
-    const currentTagToMemberData = await getCurrentTagToMemberData();
+    const currentTagToMemberData = await brawlStarsDataService.getCurrentTagToMemberData();
     const todaysTagToMemberData = await getTodaysTagToMemberData();
     const sortedTrophyPushers = getSortedTrophyPushers(currentTagToMemberData, todaysTagToMemberData, 'DESC');
 
@@ -88,7 +88,7 @@ async function list(message, args) {
 
     const clubData = await brawlStarsDataService.getClubData();
 
-    const currentTagToMemberData = getCurrentTagToMemberData();
+    const currentTagToMemberData = brawlStarsDataService.getCurrentTagToMemberData();
     let oldTagToMemberData;
     try {
         oldTagToMemberData = await readClubTrophyData(new Date(), listOptions.days);
@@ -124,11 +124,6 @@ async function list(message, args) {
     
         return Object.assign({}, defaultOptions, options);
     }
-}
-
-async function getCurrentTagToMemberData() {
-    const newClubData = await brawlStarsDataService.getClubData();
-    return brawlStarsDataService.getTagToMemberData(newClubData);
 }
 
 function getSortDirection(arg) {

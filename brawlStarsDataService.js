@@ -2,10 +2,16 @@ const BrawlStars = require('brawlstars');
 const brawlStarsClient = new BrawlStars.Client({ token: process.env.BRAWL_API_TOKEN });
 
 module.exports = {
+    getCurrentTagToMemberData,
     getClubData,
     getMemberData,
     getTagToMemberData,
 };
+
+async function getCurrentTagToMemberData() {
+    const newClubData = await getClubData();
+    return getTagToMemberData(newClubData);
+}
 
 function getMemberData(memberTag) {
     return brawlStarsClient.getPlayer(`#${memberTag.toUpperCase()}`);
