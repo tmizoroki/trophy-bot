@@ -2,6 +2,7 @@
 const brawlStarsDataService = require('./brawlStarsDataService');
 const {
     updateUsernameToTag,
+    getDocRefId,
     readClubTrophyData,
     getMessageAuthorsTag,
     getValidTag,
@@ -25,17 +26,10 @@ async function rank(message, [tagArg]) {
     if (!tag) {
         message.reply(`You have not yet linked your Brawl Stars tag. Please use the command: ${TROPHY_BOT_PREFIX} link <YOUR_BRAWL_STARS_TAG> (without the # in front)`)
     }
-    const newClubData = await brawlStarsDataService.getClubData();
-    const newTagToMemberData = brawlStarsDataService.getTagToMemberData(newClubData);
-    let todaysTagToMemberData;
-    try {
-        todaysTagToMemberData = await readClubTrophyData(new Date());
-    }
-    catch(error) {
-        todaysTagToMemberData = await readClubTrophyData(new Date(), 1);
-    }
 
-    const sortedTrophyPushers = getSortedTrophyPushers(newTagToMemberData, todaysTagToMemberData, 'DESC');
+    const currentTagToMemberData = await getCurrentTagToMemberData();
+    const todaysTagToMemberData = await getTodaysTagToMemberData();
+    const sortedTrophyPushers = getSortedTrophyPushers(currentTagToMemberData, todaysTagToMemberData, 'DESC');
 
     const index = sortedTrophyPushers.findIndex(pusher => pusher.tag === tag);
     if (index === -1) {
@@ -44,6 +38,19 @@ async function rank(message, [tagArg]) {
     const rank = sortedTrophyPushers[index].rank;
     const delta = sortedTrophyPushers[index].trophyDelta;
     message.reply(`You have pushed ${delta} trophies today (${rank}${getNumSuffix(rank)} place)`);
+}
+
+async function getTodaysTagToMemberData() {
+    let todaysTagToMemberData;
+    try {
+        const todaysDocRefId = getDocRefId(new Date());
+        todaysTagToMemberData = await readClubTrophyData(todaysDocRefId);
+    }
+    catch(error) {
+        const todaysDocRefId = getDocRefId(new Date(), 1)
+        todaysTagToMemberData = await readClubTrophyData(todaysDocRefId);
+    }
+    return todaysTagToMemberData;
 }
 
 function getNumSuffix(rank) {
@@ -81,8 +88,7 @@ async function list(message, args) {
 
     const clubData = await brawlStarsDataService.getClubData();
 
-    const newClubData = await brawlStarsDataService.getClubData();
-    const newTagToMemberData = brawlStarsDataService.getTagToMemberData(newClubData);
+    const currentTagToMemberData = getCurrentTagToMemberData();
     let oldTagToMemberData;
     try {
         oldTagToMemberData = await readClubTrophyData(new Date(), listOptions.days);
@@ -91,33 +97,38 @@ async function list(message, args) {
         oldTagToMemberData = await readClubTrophyData(new Date(), listOptions.days + 1);
     }
 
-    const sortedTrophyPushers = getSortedTrophyPushers(newTagToMemberData, oldTagToMemberData, listOptions.sortDirection);
+    const sortedTrophyPushers = getSortedTrophyPushers(currentTagToMemberData, oldTagToMemberData, listOptions.sortDirection);
 
     message.channel.send({ embed: getListEmbed(sortedTrophyPushers, clubData.name, listOptions) });
+
+    function getOptionsFromArgs(args) {
+        const defaultOptions = {
+            limit: 5,
+            days: 0,
+            sortDirection: 'DESC',
+        }
+    
+        if (!args.length) {
+            return defaultOptions;
+        }
+    
+        const sortDirectionIndex = args.findIndex(arg => arg === '--asc' || arg === '--desc');
+        const daysIndex = args.findIndex(arg => arg === '--days');
+        const limitIndex = args.findIndex(arg => arg === '--limit');
+    
+        const options = {
+            ...limitIndex != -1 ? { limit: +args[limitIndex + 1] } : {},
+            ...daysIndex != -1 ? { days: +args[daysIndex + 1] } : {},
+            ...sortDirectionIndex != -1 ? { sortDirection: getSortDirection(args[sortDirectionIndex]) } : {},
+        }
+    
+        return Object.assign({}, defaultOptions, options);
+    }
 }
 
-function getOptionsFromArgs(args) {
-    const defaultOptions = {
-        limit: 5,
-        days: 0,
-        sortDirection: 'DESC',
-    }
-
-    if (!args.length) {
-        return defaultOptions;
-    }
-
-    const sortDirectionIndex = args.findIndex(arg => arg === '--asc' || arg === '--desc');
-    const daysIndex = args.findIndex(arg => arg === '--days');
-    const limitIndex = args.findIndex(arg => arg === '--limit');
-
-    const options = {
-        ...limitIndex != -1 ? { limit: +args[limitIndex + 1] } : {},
-        ...daysIndex != -1 ? { days: +args[daysIndex + 1] } : {},
-        ...sortDirectionIndex != -1 ? { sortDirection: getSortDirection(args[sortDirectionIndex]) } : {},
-    }
-
-    return Object.assign({}, defaultOptions, options);
+async function getCurrentTagToMemberData() {
+    const newClubData = await brawlStarsDataService.getClubData();
+    return brawlStarsDataService.getTagToMemberData(newClubData);
 }
 
 function getSortDirection(arg) {

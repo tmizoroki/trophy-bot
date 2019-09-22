@@ -52,15 +52,14 @@ function getDocRefId(date, daysAgo = 0) {
   return getFormattedDate(copiedDate);
 }
 
-async function readClubTrophyData(date, daysAgo = 0) {
-  const docRefId = getDocRefId(date, daysAgo);
+async function readClubTrophyData(docRefId) {
   const document = await firestore.collection('memberTrophyData')
     .doc(docRefId)
     .get()
     .catch((error) => console.log('Error getting document', error));
 
   if (!document.exists) {
-    console.log('No such document');
+    console.log(`No document for ${docRefId}`);
   }
 
   const data = await document.data();
@@ -94,6 +93,7 @@ async function setConfig(key, value) {
 }
 
 module.exports = {
+  getDocRefId,
   saveClubTrophyData,
   readClubTrophyData,
   updateUsernameToTag,

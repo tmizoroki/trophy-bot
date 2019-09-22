@@ -1,6 +1,6 @@
 const { getClubData, getTagToMemberData } = require('./brawlStarsDataService');
 const { getSortedTrophyPushers } = require('./trophyUtils');
-const { saveClubTrophyData, readClubTrophyData } = require('./trophyBotDataService');
+const { getDocRefId, saveClubTrophyData, readClubTrophyData } = require('./trophyBotDataService');
 
 module.exports = {
   atDailyDealsReset,
@@ -13,7 +13,8 @@ async function atDailyDealsReset(date, bot) {
 
   saveClubTrophyData(newTagToMemberData, date);
 
-  const yesterdaysTagToMemberData = await readClubTrophyData(date, 1);
+  const yesterDaysDocRefId = getDocRefId(date, 1);
+  const yesterdaysTagToMemberData = await readClubTrophyData(yesterDaysDocRefId);
 
   const sortedTrophyPushers = getSortedTrophyPushers(newTagToMemberData, yesterdaysTagToMemberData);
 
@@ -25,7 +26,8 @@ async function atStartOfWeek(date, bot) {
   const newClubData = await getClubData();
   const newTagToMemberData = getTagToMemberData(newClubData);
 
-  const lastWeeksTagToMemberData = await readClubTrophyData(date, 7);
+  const lastWeeksDocRefId = getDocRefId(date, 7);
+  const lastWeeksTagToMemberData = await readClubTrophyData(lastWeeksDocRefId);
 
   const sortedTrophyPushers = getSortedTrophyPushers(newTagToMemberData, lastWeeksTagToMemberData);
 
