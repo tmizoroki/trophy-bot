@@ -16,7 +16,7 @@
   "author": "Tomio",
   "license": "ISC",
   "dependencies": {
-    "brawlstars": "^1.2.3",
+    "brawlstars": "^1.2.4",
     "discord.js": "^11.5.1",
     "firebase": "^6.3.3",
     "firebase-admin": "^8.3.0",
