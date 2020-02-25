@@ -8,8 +8,8 @@ const { TROPHY_BOT_PREFIX } = require('./constants');
 const bot = new Discord.Client();
 
 function onReady() {
-  schedule.scheduleJob('0 1 * * *', (date) => atDailyDealsReset(date, bot)); // run everyday at midnight
-  schedule.scheduleJob('0 1 * * 1', (date) => atStartOfWeek(date, bot));
+  schedule.scheduleJob('0 0 * * *', (date) => atDailyDealsReset(date, bot)); // run everyday at midnight
+  schedule.scheduleJob('0 0 * * 1', (date) => atStartOfWeek(date, bot));
   console.log('TrophyBot is Ready');
 }
 
